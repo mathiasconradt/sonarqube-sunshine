@@ -75,7 +75,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "Your security report is now live at:" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**🔗 [View Report Online](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/report.html)**" >> $GITHUB_STEP_SUMMARY
+        echo "**🔗 [View Report Online](http://conradt.net/sonarqube-sunshine/reports/report.html)**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "- The report updates automatically when you push to main/master" >> $GITHUB_STEP_SUMMARY
         echo "- You can bookmark this URL for easy access" >> $GITHUB_STEP_SUMMARY
