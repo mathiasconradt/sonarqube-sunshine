@@ -45,13 +45,22 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Download SonarQube Sunshine script
+    - name: Download SonarQube Sunshine script and dependencies
       shell: bash
       run: |
         echo "📥 Downloading SonarQube Sunshine script..."
-        curl -sL https://raw.githubusercontent.com/mathiasconradt/sonarqube-sunshine/main/sonarqube-sunshine.py -o sonarqube-sunshine.py
-        curl -sL https://raw.githubusercontent.com/mathiasconradt/sonarqube-sunshine/main/requirements.txt -o requirements.txt
-        echo "✅ Script downloaded successfully"
+        curl -sL -f https://raw.githubusercontent.com/mathiasconradt/sonarqube-sunshine/main/sonarqube-sunshine.py -o sonarqube-sunshine.py
+        
+        echo "📥 Downloading requirements.txt..."
+        curl -sL -f https://raw.githubusercontent.com/mathiasconradt/sonarqube-sunshine/main/requirements.txt -o requirements.txt
+        
+        echo "🔍 Verifying downloads..."
+        ls -la sonarqube-sunshine.py requirements.txt
+        
+        echo "📄 Requirements.txt contents:"
+        cat requirements.txt
+        
+        echo "✅ All files downloaded successfully"
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -62,7 +71,17 @@ runs:
       shell: bash
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        
+        # Check if requirements.txt exists and is not empty
+        if [ -f "requirements.txt" ] && [ -s "requirements.txt" ]; then
+          echo "📦 Installing from requirements.txt..."
+          pip install -r requirements.txt
+        else
+          echo "⚠️ requirements.txt not found or empty, installing default dependencies..."
+          pip install requests
+        fi
+        
+        echo "✅ Dependencies installed successfully"
 
     - name: Generate Report
       shell: bash

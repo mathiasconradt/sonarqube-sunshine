@@ -29,13 +29,25 @@ jobs:
 
     - name: Download SonarQube Sunshine
       run: |
-        curl -sL https://raw.githubusercontent.com/mathiasconradt/sonarqube-sunshine/main/sonarqube-sunshine.py -o sonarqube-sunshine.py
-        curl -sL https://raw.githubusercontent.com/mathiasconradt/sonarqube-sunshine/main/requirements.txt -o requirements.txt
+        echo "📥 Downloading SonarQube Sunshine script..."
+        curl -sL -f https://raw.githubusercontent.com/mathiasconradt/sonarqube-sunshine/main/sonarqube-sunshine.py -o sonarqube-sunshine.py
+        
+        echo "📥 Downloading requirements.txt..."
+        curl -sL -f https://raw.githubusercontent.com/mathiasconradt/sonarqube-sunshine/main/requirements.txt -o requirements.txt
+        
+        echo "✅ Downloads completed"
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        
+        # Install dependencies with fallback
+        if [ -f "requirements.txt" ] && [ -s "requirements.txt" ]; then
+          pip install -r requirements.txt
+        else
+          echo "Installing default dependencies..."
+          pip install requests
+        fi
 
     - name: Generate Report
       run: |
