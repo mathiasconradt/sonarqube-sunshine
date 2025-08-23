@@ -1,0 +1,153 @@
+name: 'SonarQube Sunshine Report'
+description: 'Generate interactive security reports from SonarQube or SBOM files'
+author: 'mathiasconradt'
+
+inputs:
+  sonar-token:
+    description: 'SonarQube authentication token'
+    required: false
+  sonar-host-url:
+    description: 'SonarQube host URL'
+    required: false
+  component-key:
+    description: 'SonarQube component key'
+    required: false
+  branch:
+    description: 'Branch name for SonarQube reports'
+    required: false
+  input-file:
+    description: 'Path to CycloneDX input file'
+    required: false
+  output-file:
+    description: 'Output HTML file name'
+    required: false
+    default: 'report.html'
+  enrich-cves:
+    description: 'Enrich CVEs with EPSS and CISA KEV data'
+    required: false
+    default: 'true'
+  deploy-to-pages:
+    description: 'Deploy report to GitHub Pages'
+    required: false
+    default: 'true'
+  pages-url:
+    description: 'Custom Pages URL (auto-detected if not provided)'
+    required: false
+
+outputs:
+  report-path:
+    description: 'Path to the generated HTML report'
+    value: ${{ inputs.output-file }}
+  pages-url:
+    description: 'URL where the report is published'
+    value: ${{ steps.get-pages-url.outputs.url }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download SonarQube Sunshine script
+      shell: bash
+      run: |
+        echo "📥 Downloading SonarQube Sunshine script..."
+        curl -sL https://raw.githubusercontent.com/mathiasconradt/sonarqube-sunshine/main/sonarqube-sunshine.py -o sonarqube-sunshine.py
+        curl -sL https://raw.githubusercontent.com/mathiasconradt/sonarqube-sunshine/main/requirements.txt -o requirements.txt
+        echo "✅ Script downloaded successfully"
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Generate Report
+      shell: bash
+      run: |
+        echo "🔧 Configuring SonarQube Sunshine..."
+        
+        # Build command based on inputs
+        CMD="python sonarqube-sunshine.py -o ${{ inputs.output-file }}"
+        
+        # Add enrichment flag
+        if [ "${{ inputs.enrich-cves }}" = "true" ]; then
+          CMD="$CMD -e"
+        fi
+        
+        # Check if SonarQube integration should be used
+        if [ -n "${{ inputs.sonar-token }}" ] || [ -n "$SONAR_TOKEN" ]; then
+          echo "🌐 Using SonarQube integration..."
+          
+          # Add SonarQube parameters
+          [ -n "${{ inputs.sonar-token }}" ] && CMD="$CMD -t ${{ inputs.sonar-token }}" || CMD="$CMD -t $SONAR_TOKEN"
+          [ -n "${{ inputs.sonar-host-url }}" ] && CMD="$CMD -u ${{ inputs.sonar-host-url }}" || [ -n "$SONAR_HOST_URL" ] && CMD="$CMD -u $SONAR_HOST_URL"
+          [ -n "${{ inputs.component-key }}" ] && CMD="$CMD -c ${{ inputs.component-key }}" || [ -n "$COMPONENT_KEY" ] && CMD="$CMD -c $COMPONENT_KEY"
+          [ -n "${{ inputs.branch }}" ] && CMD="$CMD -b ${{ inputs.branch }}" || [ -n "$BRANCH" ] && CMD="$CMD -b $BRANCH" || CMD="$CMD -b ${{ github.ref_name }}"
+          
+        elif [ -n "${{ inputs.input-file }}" ]; then
+          echo "📁 Using file input mode..."
+          CMD="$CMD -i ${{ inputs.input-file }}"
+          
+        else
+          echo "🔍 Auto-detecting SBOM files..."
+          if [ -f "sbom.json" ]; then
+            CMD="$CMD -i sbom.json"
+          elif [ -f "bom.json" ]; then
+            CMD="$CMD -i bom.json"
+          elif [ -f "cyclone-dx.json" ]; then
+            CMD="$CMD -i cyclone-dx.json"
+          elif [ -f "sbom.cdx.json" ]; then
+            CMD="$CMD -i sbom.cdx.json"
+          else
+            echo "❌ No SBOM file found and no SonarQube configuration provided"
+            exit 1
+          fi
+        fi
+        
+        echo "🚀 Running: $CMD"
+        eval $CMD
+
+    - name: Get Pages URL
+      id: get-pages-url
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.pages-url }}" ]; then
+          echo "url=${{ inputs.pages-url }}" >> $GITHUB_OUTPUT
+        else
+          # Auto-detect Pages URL
+          echo "url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ inputs.output-file }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Deploy to GitHub Pages
+      if: inputs.deploy-to-pages == 'true' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ github.token }}
+        publish_dir: .
+        destination_dir: reports
+        keep_files: false
+        publish_branch: gh-pages
+        user_name: 'github-actions[bot]'
+        user_email: 'github-actions[bot]@users.noreply.github.com'
+        commit_message: 'Deploy SonarQube Sunshine Report'
+
+    - name: Display Results
+      shell: bash
+      run: |
+        echo "========================================"
+        echo "🎉 SONARQUBE SUNSHINE REPORT READY!"
+        echo "========================================"
+        echo ""
+        echo "📊 Report generated: ${{ inputs.output-file }}"
+        if [ "${{ inputs.deploy-to-pages }}" = "true" ] && [ "${{ github.ref }}" = "refs/heads/main" -o "${{ github.ref }}" = "refs/heads/master" ]; then
+          echo "🌐 Live URL: ${{ steps.get-pages-url.outputs.url }}"
+        fi
+        echo ""
+        echo "========================================"
+
+branding:
+  icon: 'shield'
+  color: 'blue'
