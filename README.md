@@ -8,6 +8,9 @@ SonarQube Sunshine generates rich HTML reports from SonarQube data or CycloneDX 
 
 > **⚠️ Experimental Project**  
 > This project is based on [CycloneDX Sunshine](https://github.com/CycloneDX/Sunshine) and is purely experimental. It's designed for testing and evaluation purposes. Use in production environments at your own discretion.
+>
+> Requires **SonarQube Server Enterprise Edition
+v2025.4** or higher.
 
 ## ✨ Features
 
