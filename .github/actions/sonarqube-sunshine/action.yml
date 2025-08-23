@@ -45,14 +45,35 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    - name: Debug - Check current directory
+      shell: bash
+      run: |
+        echo "=== DEBUG START ==="
+        echo "Current directory: $(pwd)"
+        echo "Files in current directory:"
+        ls -la
+        echo "=== DEBUG END ==="
+
     - name: Download SonarQube Sunshine script and dependencies
       shell: bash
       run: |
+        echo "📥 Starting downloads..."
+        
         echo "📥 Downloading SonarQube Sunshine script..."
-        curl -sL -f https://raw.githubusercontent.com/mathiasconradt/sonarqube-sunshine/main/sonarqube-sunshine.py -o sonarqube-sunshine.py
+        if curl -sL -f https://raw.githubusercontent.com/mathiasconradt/sonarqube-sunshine/main/sonarqube-sunshine.py -o sonarqube-sunshine.py; then
+          echo "✅ Script downloaded successfully"
+        else
+          echo "❌ Failed to download script"
+          exit 1
+        fi
         
         echo "📥 Downloading requirements.txt..."
-        curl -sL -f https://raw.githubusercontent.com/mathiasconradt/sonarqube-sunshine/main/requirements.txt -o requirements.txt
+        if curl -sL -f https://raw.githubusercontent.com/mathiasconradt/sonarqube-sunshine/main/requirements.txt -o requirements.txt; then
+          echo "✅ Requirements.txt downloaded successfully"
+        else
+          echo "❌ Failed to download requirements.txt"
+          exit 1
+        fi
         
         echo "🔍 Verifying downloads..."
         ls -la sonarqube-sunshine.py requirements.txt
