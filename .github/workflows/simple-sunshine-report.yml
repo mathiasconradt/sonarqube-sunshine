@@ -1,4 +1,4 @@
-name: Simple Sunshine Report
+name: Generate Security Report
 
 on:
   push:
@@ -6,125 +6,25 @@ on:
   workflow_dispatch:
 
 jobs:
-  generate-report:
+  security-report:
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Generate SonarQube Sunshine Report
+      uses: mathiasconradt/sonarqube-sunshine/.github/actions/sonarqube-sunshine@main
       with:
-        python-version: '3.9'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Generate Report
-      run: |
-        # Using SonarQube integration if secrets are available
-        if [ -n "${{ secrets.SONAR_TOKEN }}" ]; then
-          BRANCH_ARG=""
-          if [ -n "${{ secrets.BRANCH }}" ]; then
-            BRANCH_ARG="-b ${{ secrets.BRANCH }}"
-          else
-            BRANCH_ARG="-b ${{ github.ref_name }}"
-          fi
-          
-          python sonarqube-sunshine.py \
-            -t "${{ secrets.SONAR_TOKEN }}" \
-            -u "${{ secrets.SONAR_HOST_URL }}" \
-            -c "${{ secrets.COMPONENT_KEY }}" \
-            $BRANCH_ARG \
-            -o report.html \
-            -e
-        else
-          # Fallback to file input mode - put your SBOM file in the repo
-          python sonarqube-sunshine.py \
-            -i sbom.json \
-            -o report.html \
-            -e
-        fi
+        sonar-token: ${{ secrets.SONAR_TOKEN }}
+        sonar-host-url: ${{ secrets.SONAR_HOST_URL }}
+        component-key: ${{ secrets.COMPONENT_KEY }}
+        branch: ${{ secrets.BRANCH }}
+        enrich-cves: true
+        deploy-to-pages: true
 
     - name: Upload Report as Artifact
       uses: actions/upload-artifact@v4
       with:
         name: security-report
         path: report.html
-
-    - name: Debug - Check if report exists
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-      run: |
-        echo "=== Checking for report.html ==="
-        ls -la
-        if [ -f "report.html" ]; then
-          echo "✅ report.html exists!"
-          echo "File size: $(du -h report.html)"
-        else
-          echo "❌ report.html NOT found!"
-          exit 1
-        fi
-
-    - name: Prepare deployment directory
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-      run: |
-        echo "=== Creating deployment structure ==="
-        mkdir -p deploy/reports
-        cp report.html deploy/reports/
-        echo "=== Deployment directory contents ==="
-        find deploy -type f -name "*.html"
-        ls -la deploy/reports/
-
-    - name: Deploy to GitHub Pages
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: deploy
-        keep_files: false
-        publish_branch: gh-pages
-        user_name: 'github-actions[bot]'
-        user_email: 'github-actions[bot]@users.noreply.github.com'
-        commit_message: 'Deploy SonarQube Sunshine Report'
-
-    - name: 🌐 Display Report URLs
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-      run: |
-        echo "========================================"
-        echo "🎉 REPORT SUCCESSFULLY PUBLISHED!"
-        echo "========================================"
-        echo ""
-        echo "📊 Your SonarQube Sunshine report is now live:"
-        echo "🔗 http://conradt.net/sonarqube-sunshine/reports/report.html"
-        echo ""
-        echo "✅ No downloads needed - just click and view!"
-        echo "✅ Updates automatically on every push to main"
-        echo "✅ Bookmark this URL for easy access"
-        echo ""
-        echo "========================================"
-
-    - name: Add Report URL to Job Summary
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-      run: |
-        echo "# 🎉 SonarQube Sunshine Report Published!" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "## 🌐 **[🚀 VIEW REPORT ONLINE 🚀](http://conradt.net/sonarqube-sunshine/reports/report.html)**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 📋 Report Details:" >> $GITHUB_STEP_SUMMARY
-        echo "- **📊 Report URL:** http://conradt.net/sonarqube-sunshine/reports/report.html" >> $GITHUB_STEP_SUMMARY
-        echo "- **📅 Generated:** $(date)" >> $GITHUB_STEP_SUMMARY
-        echo "- **🔄 Auto-updates:** Every push to main/master" >> $GITHUB_STEP_SUMMARY
-        echo "- **📱 Mobile-friendly:** Yes" >> $GITHUB_STEP_SUMMARY
-        echo "- **🔗 Shareable:** Yes" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### ✨ Features:" >> $GITHUB_STEP_SUMMARY
-        echo "- 🔍 Interactive vulnerability charts" >> $GITHUB_STEP_SUMMARY
-        echo "- 📊 Component dependency visualization" >> $GITHUB_STEP_SUMMARY
-        echo "- 🛡️ Security risk assessment with EPSS scores" >> $GITHUB_STEP_SUMMARY
-        echo "- 📋 Detailed vulnerability tables" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 💾 Alternative Access:" >> $GITHUB_STEP_SUMMARY
-        echo "If you need the raw HTML file, download the \`security-report\` artifact above." >> $GITHUB_STEP_SUMMARY
