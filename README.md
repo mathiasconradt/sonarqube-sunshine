@@ -6,6 +6,9 @@ SonarQube Sunshine generates rich HTML reports from SonarQube data or CycloneDX 
 
 [![Example Report](https://img.shields.io/badge/🌐_Live_Demo-View_Report-blue?style=for-the-badge)](https://conradt.net/sonarqube-sunshine/reports/report.html)
 
+> **⚠️ Experimental Project**  
+> This project is based on [CycloneDX Sunshine](https://github.com/CycloneDX/Sunshine) and is purely experimental. It's designed for testing and evaluation purposes. Use in production environments at your own discretion.
+
 ## ✨ Features
 
 - 🔍 **Interactive vulnerability charts** with dependency visualization
