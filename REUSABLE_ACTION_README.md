@@ -54,6 +54,8 @@ The action automatically:
 
 ## 🔧 Setup Instructions
 
+⚠️ **IMPORTANT: You need either SonarQube secrets OR an SBOM file in your repository**
+
 ### For SonarQube Integration:
 
 1. **Add secrets to your target repository:**

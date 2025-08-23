@@ -117,15 +117,33 @@ runs:
           CMD="$CMD -e"
         fi
         
-        # Check if SonarQube integration should be used
-        if [ -n "${{ inputs.sonar-token }}" ] || [ -n "$SONAR_TOKEN" ]; then
+        # Debug: Show what inputs we received
+        echo "🔍 Debugging inputs:"
+        echo "  sonar-token: $(if [ -n '${{ inputs.sonar-token }}' ]; then echo 'PROVIDED'; else echo 'EMPTY'; fi)"
+        echo "  sonar-host-url: ${{ inputs.sonar-host-url }}"
+        echo "  component-key: ${{ inputs.component-key }}"
+        echo "  branch: ${{ inputs.branch }}"
+        
+        # Check if SonarQube integration should be used (only check inputs, not env vars)
+        if [ -n "${{ inputs.sonar-token }}" ]; then
           echo "🌐 Using SonarQube integration..."
           
-          # Add SonarQube parameters
-          [ -n "${{ inputs.sonar-token }}" ] && CMD="$CMD -t ${{ inputs.sonar-token }}" || CMD="$CMD -t $SONAR_TOKEN"
-          [ -n "${{ inputs.sonar-host-url }}" ] && CMD="$CMD -u ${{ inputs.sonar-host-url }}" || [ -n "$SONAR_HOST_URL" ] && CMD="$CMD -u $SONAR_HOST_URL"
-          [ -n "${{ inputs.component-key }}" ] && CMD="$CMD -c ${{ inputs.component-key }}" || [ -n "$COMPONENT_KEY" ] && CMD="$CMD -c $COMPONENT_KEY"
-          [ -n "${{ inputs.branch }}" ] && CMD="$CMD -b ${{ inputs.branch }}" || [ -n "$BRANCH" ] && CMD="$CMD -b $BRANCH" || CMD="$CMD -b ${{ github.ref_name }}"
+          # Add SonarQube parameters from inputs
+          CMD="$CMD -t ${{ inputs.sonar-token }}"
+          
+          if [ -n "${{ inputs.sonar-host-url }}" ]; then
+            CMD="$CMD -u ${{ inputs.sonar-host-url }}"
+          fi
+          
+          if [ -n "${{ inputs.component-key }}" ]; then
+            CMD="$CMD -c ${{ inputs.component-key }}"
+          fi
+          
+          if [ -n "${{ inputs.branch }}" ]; then
+            CMD="$CMD -b ${{ inputs.branch }}"
+          else
+            CMD="$CMD -b ${{ github.ref_name }}"
+          fi
           
         elif [ -n "${{ inputs.input-file }}" ]; then
           echo "📁 Using file input mode..."
