@@ -54,3 +54,29 @@ jobs:
       with:
         name: security-report
         path: report.html
+
+    - name: Deploy to GitHub Pages
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
+        destination_dir: reports
+        keep_files: true
+        publish_branch: gh-pages
+        user_name: 'github-actions[bot]'
+        user_email: 'github-actions[bot]@users.noreply.github.com'
+        commit_message: 'Deploy SonarQube Sunshine Report'
+
+    - name: Add Report URL to Job Summary
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      run: |
+        echo "## 🌐 Report Published!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Your security report is now live at:" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**🔗 [View Report Online](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/report.html)**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- The report updates automatically when you push to main/master" >> $GITHUB_STEP_SUMMARY
+        echo "- You can bookmark this URL for easy access" >> $GITHUB_STEP_SUMMARY
+        echo "- No downloads needed - just click and view!" >> $GITHUB_STEP_SUMMARY
