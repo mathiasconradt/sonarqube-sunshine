@@ -92,7 +92,7 @@ python sonarqube-sunshine.py \
 For SonarQube integration, add these secrets to your repository (**Settings → Secrets → Actions**):
 
 - `SONAR_TOKEN` - Your SonarQube authentication token
-- `SONAR_HOST_URL` - Your SonarQube instance URL (e.g., `https://sonarcloud.io`)
+- `SONAR_HOST_URL` - Your SonarQube instance URL (e.g., `https://next.sonarqube.com/sonarqube`)
 - `COMPONENT_KEY` - Your project key in SonarQube
 
 ### 🌐 GitHub Pages Setup (Optional)
@@ -238,7 +238,7 @@ pip install -r requirements.txt
 # SonarQube integration with CVE enrichment
 python sonarqube-sunshine.py \
   -t YOUR_SONAR_TOKEN \
-  -u https://sonarcloud.io \
+  -u https://next.sonarqube.com/sonarqube \
   -c your-project-key \
   -b main \
   -o report.html \
