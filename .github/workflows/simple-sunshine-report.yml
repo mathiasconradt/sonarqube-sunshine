@@ -19,7 +19,6 @@ jobs:
         sonar-token: ${{ secrets.SONAR_TOKEN }}
         sonar-host-url: ${{ secrets.SONAR_HOST_URL }}
         component-key: ${{ secrets.COMPONENT_KEY }}
-        branch: ${{ secrets.BRANCH }}
         enrich-cves: true
         deploy-to-pages: true
 

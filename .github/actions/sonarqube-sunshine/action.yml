@@ -12,9 +12,7 @@ inputs:
   component-key:
     description: 'SonarQube component key'
     required: false
-  branch:
-    description: 'Branch name for SonarQube reports'
-    required: false
+
   input-file:
     description: 'Path to CycloneDX input file'
     required: false
@@ -122,7 +120,7 @@ runs:
         echo "  sonar-token: $(if [ -n '${{ inputs.sonar-token }}' ]; then echo 'PROVIDED'; else echo 'EMPTY'; fi)"
         echo "  sonar-host-url: ${{ inputs.sonar-host-url }}"
         echo "  component-key: ${{ inputs.component-key }}"
-        echo "  branch: ${{ inputs.branch }}"
+        echo "  branch (auto-detected): ${{ github.ref_name }}"
         
         # Check if SonarQube integration should be used (only check inputs, not env vars)
         if [ -n "${{ inputs.sonar-token }}" ]; then
@@ -139,11 +137,8 @@ runs:
             CMD="$CMD -c ${{ inputs.component-key }}"
           fi
           
-          if [ -n "${{ inputs.branch }}" ]; then
-            CMD="$CMD -b ${{ inputs.branch }}"
-          else
-            CMD="$CMD -b ${{ github.ref_name }}"
-          fi
+          # Always use the current pipeline branch
+          CMD="$CMD -b ${{ github.ref_name }}"
           
         elif [ -n "${{ inputs.input-file }}" ]; then
           echo "📁 Using file input mode..."

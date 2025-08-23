@@ -32,7 +32,6 @@ jobs:
         sonar-token: ${{ secrets.SONAR_TOKEN }}
         sonar-host-url: ${{ secrets.SONAR_HOST_URL }}
         component-key: ${{ secrets.COMPONENT_KEY }}
-        branch: ${{ secrets.BRANCH }}
         enrich-cves: true
         deploy-to-pages: true
 
@@ -62,7 +61,6 @@ The action automatically:
    - `SONAR_TOKEN`
    - `SONAR_HOST_URL`
    - `COMPONENT_KEY`
-   - `BRANCH` (optional)
 
 2. **Enable GitHub Pages:**
    - Settings → Pages
@@ -94,12 +92,13 @@ The action automatically:
 | `sonar-token` | SonarQube authentication token | No | from secrets |
 | `sonar-host-url` | SonarQube host URL | No | from secrets |
 | `component-key` | SonarQube component key | No | from secrets |
-| `branch` | Branch name for SonarQube reports | No | current branch |
 | `input-file` | Path to CycloneDX input file | No | auto-detect |
 | `output-file` | Output HTML file name | No | `report.html` |
 | `enrich-cves` | Enrich CVEs with EPSS and CISA KEV | No | `true` |
 | `deploy-to-pages` | Deploy report to GitHub Pages | No | `true` |
 | `pages-url` | Custom Pages URL | No | auto-detect |
+
+**Note:** Branch name is automatically detected from the GitHub Actions pipeline context (`github.ref_name`).
 
 ## 📋 Complete Example Use Cases
 
@@ -125,7 +124,6 @@ jobs:
         sonar-token: ${{ secrets.SONAR_TOKEN }}
         sonar-host-url: ${{ secrets.SONAR_HOST_URL }}
         component-key: 'my-java-project'
-        branch: ${{ github.ref_name }}
         enrich-cves: true
         deploy-to-pages: true
 ```
