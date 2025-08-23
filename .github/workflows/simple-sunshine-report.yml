@@ -90,16 +90,41 @@ jobs:
         user_email: 'github-actions[bot]@users.noreply.github.com'
         commit_message: 'Deploy SonarQube Sunshine Report'
 
+    - name: 🌐 Display Report URLs
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      run: |
+        echo "========================================"
+        echo "🎉 REPORT SUCCESSFULLY PUBLISHED!"
+        echo "========================================"
+        echo ""
+        echo "📊 Your SonarQube Sunshine report is now live:"
+        echo "🔗 http://conradt.net/sonarqube-sunshine/reports/report.html"
+        echo ""
+        echo "✅ No downloads needed - just click and view!"
+        echo "✅ Updates automatically on every push to main"
+        echo "✅ Bookmark this URL for easy access"
+        echo ""
+        echo "========================================"
+
     - name: Add Report URL to Job Summary
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
       run: |
-        echo "## 🌐 Report Published!" >> $GITHUB_STEP_SUMMARY
+        echo "# 🎉 SonarQube Sunshine Report Published!" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "Your security report is now live at:" >> $GITHUB_STEP_SUMMARY
+        echo "## 🌐 **[🚀 VIEW REPORT ONLINE 🚀](http://conradt.net/sonarqube-sunshine/reports/report.html)**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**🔗 [View Report Online](http://conradt.net/sonarqube-sunshine/reports/report.html)**" >> $GITHUB_STEP_SUMMARY
-        echo "**🔗 [Alternative: Root Report](http://conradt.net/sonarqube-sunshine/report.html)**" >> $GITHUB_STEP_SUMMARY
+        echo "### 📋 Report Details:" >> $GITHUB_STEP_SUMMARY
+        echo "- **📊 Report URL:** http://conradt.net/sonarqube-sunshine/reports/report.html" >> $GITHUB_STEP_SUMMARY
+        echo "- **📅 Generated:** $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "- **🔄 Auto-updates:** Every push to main/master" >> $GITHUB_STEP_SUMMARY
+        echo "- **📱 Mobile-friendly:** Yes" >> $GITHUB_STEP_SUMMARY
+        echo "- **🔗 Shareable:** Yes" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "- The report updates automatically when you push to main/master" >> $GITHUB_STEP_SUMMARY
-        echo "- You can bookmark this URL for easy access" >> $GITHUB_STEP_SUMMARY
-        echo "- No downloads needed - just click and view!" >> $GITHUB_STEP_SUMMARY
+        echo "### ✨ Features:" >> $GITHUB_STEP_SUMMARY
+        echo "- 🔍 Interactive vulnerability charts" >> $GITHUB_STEP_SUMMARY
+        echo "- 📊 Component dependency visualization" >> $GITHUB_STEP_SUMMARY
+        echo "- 🛡️ Security risk assessment with EPSS scores" >> $GITHUB_STEP_SUMMARY
+        echo "- 📋 Detailed vulnerability tables" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 💾 Alternative Access:" >> $GITHUB_STEP_SUMMARY
+        echo "If you need the raw HTML file, download the \`security-report\` artifact above." >> $GITHUB_STEP_SUMMARY
