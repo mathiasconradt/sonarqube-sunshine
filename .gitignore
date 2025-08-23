@@ -4,6 +4,8 @@ screenshots/
 report.html
 *.html
 
+*.bak
+
 # Python virtual environments
 .venv/
 venv/
