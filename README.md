@@ -1,6 +1,6 @@
 # 🌞 SonarQube Sunshine
 
-**Transform your SonarQube vulnerability data into beautiful, interactive security reports.**
+**Transform your SonarQube SCA vulnerability data into beautiful, interactive security reports.**
 
 SonarQube Sunshine generates rich HTML reports from SonarQube data or CycloneDX SBOM files, featuring interactive charts, vulnerability analysis, and EPSS/CISA KEV enrichment.
 
