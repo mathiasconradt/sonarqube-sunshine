@@ -206,6 +206,60 @@ runs:
         echo ""
         echo "========================================"
 
+    - name: Add Report URL to Job Summary
+      if: inputs.deploy-to-pages == 'true' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+      shell: bash
+      run: |
+        PAGES_URL="${{ steps.get-pages-url.outputs.url }}"
+        
+        echo "# 🎉 SonarQube Sunshine Report Published!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## 🌐 **[🚀 VIEW REPORT ONLINE 🚀]($PAGES_URL)**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📋 Report Details:" >> $GITHUB_STEP_SUMMARY
+        echo "- **📊 Report URL:** $PAGES_URL" >> $GITHUB_STEP_SUMMARY
+        echo "- **📅 Generated:** $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "- **📁 Repository:** ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **🌿 Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **🔄 Auto-updates:** Every push to main/master" >> $GITHUB_STEP_SUMMARY
+        echo "- **📱 Mobile-friendly:** Yes" >> $GITHUB_STEP_SUMMARY
+        echo "- **🔗 Shareable:** Yes" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### ✨ Report Features:" >> $GITHUB_STEP_SUMMARY
+        echo "- 🔍 Interactive vulnerability charts" >> $GITHUB_STEP_SUMMARY
+        echo "- 📊 Component dependency visualization" >> $GITHUB_STEP_SUMMARY
+        echo "- 🛡️ Security risk assessment with EPSS scores" >> $GITHUB_STEP_SUMMARY
+        echo "- 📋 Detailed vulnerability tables" >> $GITHUB_STEP_SUMMARY
+        echo "- 🎯 CISA KEV integration" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 💾 Alternative Access:" >> $GITHUB_STEP_SUMMARY
+        echo "If you need the raw HTML file, download the artifact from the workflow run above." >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "---" >> $GITHUB_STEP_SUMMARY
+        echo "🚀 **Powered by [SonarQube Sunshine](https://github.com/mathiasconradt/sonarqube-sunshine)**" >> $GITHUB_STEP_SUMMARY
+
+    - name: Add Artifact-Only Summary
+      if: inputs.deploy-to-pages != 'true' || (github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master')
+      shell: bash
+      run: |
+        echo "# 📊 SonarQube Sunshine Report Generated!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📋 Report Details:" >> $GITHUB_STEP_SUMMARY
+        echo "- **📅 Generated:** $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "- **📁 Repository:** ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **🌿 Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **📄 Report file:** ${{ inputs.output-file }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 💾 Access:" >> $GITHUB_STEP_SUMMARY
+        echo "Download the report artifact from this workflow run to view the security analysis." >> $GITHUB_STEP_SUMMARY
+        if [ "${{ inputs.deploy-to-pages }}" = "true" ]; then
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**📝 Note:** GitHub Pages deployment only occurs on main/master branches." >> $GITHUB_STEP_SUMMARY
+        fi
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "---" >> $GITHUB_STEP_SUMMARY
+        echo "🚀 **Powered by [SonarQube Sunshine](https://github.com/mathiasconradt/sonarqube-sunshine)**" >> $GITHUB_STEP_SUMMARY
+
 branding:
   icon: 'shield'
   color: 'blue'
