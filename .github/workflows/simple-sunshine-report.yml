@@ -55,14 +55,36 @@ jobs:
         name: security-report
         path: report.html
 
+    - name: Debug - Check if report exists
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      run: |
+        echo "=== Checking for report.html ==="
+        ls -la
+        if [ -f "report.html" ]; then
+          echo "✅ report.html exists!"
+          echo "File size: $(du -h report.html)"
+        else
+          echo "❌ report.html NOT found!"
+          exit 1
+        fi
+
+    - name: Prepare deployment directory
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      run: |
+        echo "=== Creating deployment structure ==="
+        mkdir -p deploy/reports
+        cp report.html deploy/reports/
+        echo "=== Deployment directory contents ==="
+        find deploy -type f -name "*.html"
+        ls -la deploy/reports/
+
     - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: .
-        destination_dir: reports
-        keep_files: true
+        publish_dir: deploy
+        keep_files: false
         publish_branch: gh-pages
         user_name: 'github-actions[bot]'
         user_email: 'github-actions[bot]@users.noreply.github.com'
@@ -76,6 +98,7 @@ jobs:
         echo "Your security report is now live at:" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**🔗 [View Report Online](http://conradt.net/sonarqube-sunshine/reports/report.html)**" >> $GITHUB_STEP_SUMMARY
+        echo "**🔗 [Alternative: Root Report](http://conradt.net/sonarqube-sunshine/report.html)**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "- The report updates automatically when you push to main/master" >> $GITHUB_STEP_SUMMARY
         echo "- You can bookmark this URL for easy access" >> $GITHUB_STEP_SUMMARY
