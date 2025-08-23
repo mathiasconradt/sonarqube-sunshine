@@ -1,0 +1,56 @@
+name: Simple Sunshine Report
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Generate Report
+      run: |
+        # Using SonarQube integration if secrets are available
+        if [ -n "${{ secrets.SONAR_TOKEN }}" ]; then
+          BRANCH_ARG=""
+          if [ -n "${{ secrets.BRANCH }}" ]; then
+            BRANCH_ARG="-b ${{ secrets.BRANCH }}"
+          else
+            BRANCH_ARG="-b ${{ github.ref_name }}"
+          fi
+          
+          python sonarqube-sunshine.py \
+            -t "${{ secrets.SONAR_TOKEN }}" \
+            -u "${{ secrets.SONAR_HOST_URL }}" \
+            -c "${{ secrets.COMPONENT_KEY }}" \
+            $BRANCH_ARG \
+            -o report.html \
+            -e
+        else
+          # Fallback to file input mode - put your SBOM file in the repo
+          python sonarqube-sunshine.py \
+            -i sbom.json \
+            -o report.html \
+            -e
+        fi
+
+    - name: Upload Report as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report
+        path: report.html
