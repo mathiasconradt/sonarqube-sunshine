@@ -179,13 +179,27 @@ runs:
           echo "url=https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ inputs.output-file }}" >> $GITHUB_OUTPUT
         fi
 
+    - name: Prepare Clean Deployment Directory
+      if: inputs.deploy-to-pages == 'true' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+      shell: bash
+      run: |
+        echo "🧹 Creating clean deployment directory..."
+        mkdir -p deploy-clean/reports
+        
+        # Copy only the HTML report file
+        cp "${{ inputs.output-file }}" deploy-clean/reports/
+        
+        echo "📁 Deployment directory contents:"
+        find deploy-clean -type f -name "*.html"
+        
+        echo "✅ Clean deployment directory prepared"
+
     - name: Deploy to GitHub Pages
       if: inputs.deploy-to-pages == 'true' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ github.token }}
-        publish_dir: .
-        destination_dir: reports
+        publish_dir: deploy-clean
         keep_files: false
         publish_branch: gh-pages
         user_name: 'github-actions[bot]'
