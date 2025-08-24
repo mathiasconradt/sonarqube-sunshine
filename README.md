@@ -61,6 +61,7 @@ jobs:
         name: security-report
         path: report.html
 ```
+Make sure it runs after the build and Sonar scan, usually connected via `needs`.
 
 **That's it!** Your reports will be automatically generated and published to GitHub Pages.
 
